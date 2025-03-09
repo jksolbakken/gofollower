@@ -78,7 +78,7 @@ jobs:
         with:
           distribution: goreleaser
           version: v2.3.2
-          args: release --config .goreleaser.yml --clean --verbose
+          args: release --config .goreleaser.yaml --clean --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BREW_PUSH_TOKEN: ${{ secrets.BREW_PUSH_TOKEN }}
