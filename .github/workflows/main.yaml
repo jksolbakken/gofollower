@@ -45,7 +45,6 @@ jobs:
 
       - name: Test Go
         run: |
-          go mod tidy -v
           make test
           make check
 
