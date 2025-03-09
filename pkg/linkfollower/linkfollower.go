@@ -6,18 +6,22 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 )
 
 const maxRedirectDepth = 10
 
 var metaRefreshPattern = regexp.MustCompile(`<(meta|META)\s+(http-equiv|HTTP-EQUIV).*(CONTENT|content)=["']0;[ ]*(URL|url)=(?P<Location>.*?)(["']*>)`)
+var lnkdInPattern = regexp.MustCompile(`<a.*name="external_url_click".*>\s+(?P<Location>https?://.*\s+)</a>`)
 
 type VisitResponse struct {
-	IsRedirect bool
-	StatusCode int
-	Location   *url.URL
-	Additional string
+	IsRedirect     bool
+	StatusCode     int
+	Location       *url.URL
+	AdditionalInfo string
 }
+
+type linkExtractor = func(html string) (*url.URL, error)
 
 func Follow(startURL *url.URL, responseHandler func(visitedURL *url.URL, resp VisitResponse)) error {
 	u := startURL
@@ -50,24 +54,30 @@ func visit(site *url.URL, httpClient *http.Client) (VisitResponse, error) {
 	if err != nil {
 		return VisitResponse{}, err
 	}
-	if redirectLocation == nil && resp.Status == "200" {
+	if redirectLocation == nil && resp.StatusCode == 200 {
 		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return VisitResponse{}, err
 		}
-		redirectLocation, err = redirectByMetaRefresh(string(body))
-		if err != nil {
-			return VisitResponse{}, err
+		for _, extractor := range extractors {
+			location, err := extractor(string(body))
+			if err != nil {
+				return VisitResponse{}, err
+			}
+			if location != nil {
+				redirectLocation = location
+				additional = "extracted from body"
+				break
+			}
 		}
-		additional = "+ html meta refresh"
-	}
 
+	}
 	return VisitResponse{
-		IsRedirect: redirectLocation != nil,
-		StatusCode: resp.StatusCode,
-		Location:   redirectLocation,
-		Additional: additional,
+		IsRedirect:     redirectLocation != nil,
+		StatusCode:     resp.StatusCode,
+		Location:       redirectLocation,
+		AdditionalInfo: additional,
 	}, nil
 }
 
@@ -90,4 +100,19 @@ func redirectByMetaRefresh(input string) (*url.URL, error) {
 	}
 	locationIndex := metaRefreshPattern.SubexpIndex("Location")
 	return url.Parse(matches[locationIndex])
+}
+
+func redirectByLnkdIn(input string) (*url.URL, error) {
+	matches := lnkdInPattern.FindStringSubmatch(input)
+	if matches == nil {
+		return nil, nil
+	}
+	locationIndex := lnkdInPattern.SubexpIndex("Location")
+	withoutTrailingSpaces := strings.TrimSpace(matches[locationIndex])
+	return url.Parse(withoutTrailingSpaces)
+}
+
+var extractors = []linkExtractor{
+	redirectByMetaRefresh,
+	redirectByLnkdIn,
 }

@@ -18,7 +18,11 @@ func main() {
 		log.Fatalln(err)
 	}
 	responseHandler := func(visitedURL *url.URL, response linkfollower.VisitResponse) {
-		fmt.Printf("%v -> %d %s\n", visitedURL, response.StatusCode, response.Additional)
+		msg := fmt.Sprintf("%v -> %d", visitedURL, response.StatusCode)
+		if response.AdditionalInfo != "" {
+			msg += fmt.Sprintf(" + %s", response.AdditionalInfo)
+		}
+		fmt.Printf(msg + "\n")
 	}
 	err = linkfollower.Follow(startUrl, responseHandler)
 	if err != nil {
