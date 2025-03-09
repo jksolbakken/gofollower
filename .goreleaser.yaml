@@ -35,4 +35,18 @@ release:
   header: |
     ## gofollower ({{ .Version }})
 
+brews:
+  - repository:
+      owner: jksolbakken
+      name: homebrew-tap
+      token: "{{ .Env.BREW_PUSH_TOKEN }}"
+    name: gofollower
+    homepage: "https://github.com/jksolbakken/gofollower"
+    description: "Command-line utility for following HTTP links"
+    directory: Formula
+    install: |
+      bin.install "follow"
+    test: |
+      assert_match version, shell_output("#{bin}/follow version")
+
 
