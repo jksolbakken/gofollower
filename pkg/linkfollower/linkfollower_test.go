@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestExtractingFromMetaRefresh(t *testing.T) {
+func TestMetaRefreshTagYieldsURL(t *testing.T) {
 	expected, _ := url.Parse("http://yolo.test")
 	actual, _ := redirectByMetaRefresh(`<META http-equiv="refresh" content="0; url=http://yolo.test">`)
 	if actual.String() != expected.String() {
@@ -13,7 +13,7 @@ func TestExtractingFromMetaRefresh(t *testing.T) {
 	}
 }
 
-func TestExtractingFromMetaRefresh2(t *testing.T) {
+func TestNoMetaRefreshTagYieldsNil(t *testing.T) {
 	input := "bla bla unrelated"
 	actual, _ := redirectByMetaRefresh(`bogus input`)
 	if actual != nil {
