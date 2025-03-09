@@ -1,9 +1,9 @@
-.PHONY: all compile test check
+.PHONY: all gofollower test check
 
-all: compile test check
+all: gofollower test check
 
-compile: 
-	go build -o bin/gofollower cmd/gofollower/*.go
+gofollower:
+	go build -o bin/gofollower cmd/gofollower/main.go
 
 test:
 	go test -v ./...

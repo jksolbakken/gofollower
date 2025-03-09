@@ -1,0 +1,86 @@
+name: Publish release
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  set-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: set version
+        id: set-version
+        run: |
+          echo Faking a Semantic Version
+          echo "version=1.$(date "+%Y%m%d%H%M%S")" >> ${GITHUB_OUTPUT}
+
+  test:
+    needs:
+      - set-version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v4
+
+      - name: Extract version of Go to use
+        run: echo "GOVERSION=$(cat go.mod | grep -w "go" | awk ' { print $2 } ')" >> $GITHUB_ENV
+      - name: Set up Go
+        uses: actions/setup-go@v5.3.0
+        with:
+          go-version: ${{ env.GOVERSION }}
+
+      - name: Test Go
+        run: |
+          go mod tidy -v
+          make test
+          make check
+
+  release:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: write
+    needs:
+      - set-version
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version of Go to use
+        run: echo "GOVERSION=$(cat go.mod | grep -w "go" | awk ' { print $2 } ')" >> $GITHUB_ENV
+      - name: Set up Go
+        uses: actions/setup-go@v5.3.0
+        with:
+          go-version: ${{ env.GOVERSION }}
+
+      - name: Create tag
+        run: |
+          git tag ${{ needs.set-version.outputs.version }}
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: v2.3.2
+          args: release --config .goreleaser.yml --clean --verbose
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BREW_PUSH_TOKEN: ${{ secrets.BREW_PUSH_TOKEN }}
+
