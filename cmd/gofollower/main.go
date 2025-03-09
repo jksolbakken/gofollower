@@ -5,10 +5,15 @@ import (
 	"gofollower/pkg/linkfollower"
 	"log"
 	"net/url"
+	"os"
 )
 
 func main() {
-	startUrl, err := url.Parse("https://tinyurl.com/m3q2xt")
+	args := os.Args
+	if len(args) != 2 {
+		log.Fatal("usage: follow <START_URL>")
+	}
+	startUrl, err := url.Parse(args[1])
 	if err != nil {
 		log.Fatalln(err)
 	}
