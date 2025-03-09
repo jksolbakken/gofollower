@@ -22,7 +22,7 @@ func main() {
 		if response.AdditionalInfo != "" {
 			msg += fmt.Sprintf(" + %s", response.AdditionalInfo)
 		}
-		fmt.Printf(msg + "\n")
+		fmt.Printf("%s\n", msg)
 	}
 	err = linkfollower.Follow(startUrl, responseHandler)
 	if err != nil {
