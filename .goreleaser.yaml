@@ -15,7 +15,7 @@ builds:
       - darwin_arm64
     id: linmac
     dir: .
-    main: ./
+    main: ./cmd/gofollower
     binary: follow
 
 checksum:
