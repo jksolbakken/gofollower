@@ -24,7 +24,7 @@ type VisitResponse struct {
 type linkExtractor = func(html string) (*url.URL, error)
 
 func Follow(startURL *url.URL, responseHandler func(visitedURL *url.URL, resp VisitResponse)) error {
-	u := startURL
+	u := prefixWithHttps(startURL)
 	httpClient := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
@@ -42,6 +42,13 @@ func Follow(startURL *url.URL, responseHandler func(visitedURL *url.URL, resp Vi
 		u = response.Location
 	}
 	return fmt.Errorf("max redirect limit of %d exceeded", maxRedirectDepth)
+}
+
+func prefixWithHttps(u *url.URL) *url.URL {
+	if u.Scheme == "" {
+		u.Scheme = "https"
+	}
+	return u
 }
 
 func visit(site *url.URL, httpClient *http.Client) (VisitResponse, error) {
