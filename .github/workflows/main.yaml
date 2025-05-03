@@ -16,6 +16,8 @@ concurrency:
 jobs:
   set-version:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       version: ${{ steps.set-version.outputs.version }}
     steps:
