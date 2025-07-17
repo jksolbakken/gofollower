@@ -42,12 +42,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Extract version of Go to use
-        run: echo "GOVERSION=$(cat go.mod | grep -w "go" | awk ' { print $2 } ' | grep -w "^[^v]")" >> $GITHUB_ENV
       - name: Set up Go
         uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # ratchet:actions/setup-go@v5.3.0
         with:
-          go-version: ${{ env.GOVERSION }}
+          go-version-file: 'go.mod'
           cache: false
 
       - name: Test Go
@@ -70,12 +68,10 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Extract version of Go to use
-        run: echo "GOVERSION=$(cat go.mod | grep -w "go" | awk ' { print $2 } ' | grep -w "^[^v]")" >> $GITHUB_ENV
       - name: Set up Go
         uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # ratchet:actions/setup-go@v5.3.0
         with:
-          go-version: ${{ env.GOVERSION }}
+          go-version-file: 'go.mod'
           cache: false
 
       - name: Create tag
