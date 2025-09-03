@@ -30,7 +30,7 @@ func Follow(startURL *url.URL, responseHandler func(visitedURL *url.URL, resp Vi
 			return http.ErrUseLastResponse
 		},
 	}
-	for i := 0; i < maxRedirectDepth; i++ {
+	for range maxRedirectDepth {
 		response, err := visit(u, httpClient)
 		if err != nil {
 			return err
