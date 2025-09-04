@@ -15,15 +15,18 @@ var metaRefreshPattern = regexp.MustCompile(`<(meta|META)\s+(http-equiv|HTTP-EQU
 var lnkdInPattern = regexp.MustCompile(`<a.*name="external_url_click".*>\s+(?P<Location>https?://.*\s+)</a>`)
 
 type VisitResponse struct {
+	VisitedURL     *url.URL
 	IsRedirect     bool
 	StatusCode     int
 	Location       *url.URL
 	AdditionalInfo string
 }
 
+type ResponseHandler func(resp VisitResponse)
+
 type linkExtractor = func(html string) (*url.URL, error)
 
-func Follow(startURL *url.URL, responseHandler func(visitedURL *url.URL, resp VisitResponse)) error {
+func Follow(startURL *url.URL, responseHandler ResponseHandler) error {
 	u := prefixWithHttps(startURL)
 	httpClient := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -35,7 +38,7 @@ func Follow(startURL *url.URL, responseHandler func(visitedURL *url.URL, resp Vi
 		if err != nil {
 			return err
 		}
-		responseHandler(u, response)
+		responseHandler(response)
 		if !response.IsRedirect {
 			return nil
 		}
@@ -81,6 +84,7 @@ func visit(site *url.URL, httpClient *http.Client) (VisitResponse, error) {
 
 	}
 	return VisitResponse{
+		VisitedURL:     site,
 		IsRedirect:     redirectLocation != nil,
 		StatusCode:     resp.StatusCode,
 		Location:       redirectLocation,
