@@ -1,0 +1,37 @@
+name: Determine known CVEs through `govulncheck`
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    # Mondays at 0000
+    - cron: "0 0 * * 1"
+
+permissions: {}
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.ref }}
+
+jobs:
+  check-for-vulnerabilities:
+    name: Check for vulnerabilities using `govulncheck`
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # ratchet:actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: golang/govulncheck-action@b625fbe08f3bccbe446d94fbf87fcc875a4f50ee # ratchet:golang/govulncheck-action@v1
+        with:
+          output-format: sarif
+          output-file: govulncheck.sarif
+          go-version-file: go.mod
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@fdbfb4d2750291e159f0156def62b853c2798ca2 # ratchet:github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: govulncheck.sarif
+          category: govulncheck
