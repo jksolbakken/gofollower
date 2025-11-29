@@ -19,7 +19,7 @@ jobs:
     name: Check for vulnerabilities using `govulncheck`
     runs-on: ubuntu-latest
     permissions:
-      security-events: write
+      security-events: write # for uploading sarif file
       contents: read
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # ratchet:actions/checkout@v5

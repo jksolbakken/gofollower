@@ -8,6 +8,7 @@ on:
       - "**.md"
   workflow_dispatch:
 
+permissions: {}
 
 concurrency:
   group: ${{ github.ref }}
@@ -16,6 +17,7 @@ concurrency:
 jobs:
   set-version:
     runs-on: ubuntu-latest
+    name: set-version
     permissions:
       contents: read
     outputs:
@@ -34,6 +36,7 @@ jobs:
     needs:
       - set-version
     runs-on: ubuntu-latest
+    name: test
     permissions:
       contents: read
     steps:
@@ -56,7 +59,8 @@ jobs:
   release:
     if: ${{ github.ref == 'refs/heads/main' }}
     permissions:
-      contents: write
+      contents: write # for adding new releases
+    name: release
     needs:
       - set-version
       - test
