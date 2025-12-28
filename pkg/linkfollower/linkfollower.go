@@ -11,7 +11,7 @@ import (
 
 const maxRedirectDepth = 10
 
-var metaRefreshPattern = regexp.MustCompile(`<(meta|META)\s+(http-equiv|HTTP-EQUIV).*(CONTENT|content)=["']0;[ ]*(URL|url)=(?P<Location>.*?)(["']*>)`)
+var metaRefreshPattern = regexp.MustCompile(`(?i)<(meta)\s+(http-equiv).*(content)=["']0;[ ]*(url)=(?P<Location>.*?)(["']*>)`)
 var lnkdInPattern = regexp.MustCompile(`<a.*name="external_url_click".*>\s+(?P<Location>https?://.*\s+)</a>`)
 
 type VisitResponse struct {
