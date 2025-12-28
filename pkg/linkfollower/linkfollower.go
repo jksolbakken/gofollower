@@ -12,7 +12,7 @@ import (
 const maxRedirectDepth = 10
 
 var metaRefreshPattern = regexp.MustCompile(`(?i)<(meta)\s+(http-equiv).*(content)=["']0;[ ]*(url)=(?P<Location>.*?)(["']*>)`)
-var lnkdInPattern = regexp.MustCompile(`<a.*name="external_url_click".*>\s+(?P<Location>https?://.*\s+)</a>`)
+var linkedInPattern = regexp.MustCompile(`<a.*name="external_url_click".*>\s+(?P<Location>https?://.*\s+)</a>`)
 
 type VisitResponse struct {
 	VisitedURL     *url.URL
@@ -113,17 +113,17 @@ func redirectByMetaRefresh(input string) (*url.URL, error) {
 	return url.Parse(matches[locationIndex])
 }
 
-func redirectByLnkdIn(input string) (*url.URL, error) {
-	matches := lnkdInPattern.FindStringSubmatch(input)
+func redirectByLinkedIn(input string) (*url.URL, error) {
+	matches := linkedInPattern.FindStringSubmatch(input)
 	if matches == nil {
 		return nil, nil
 	}
-	locationIndex := lnkdInPattern.SubexpIndex("Location")
+	locationIndex := linkedInPattern.SubexpIndex("Location")
 	withoutTrailingSpaces := strings.TrimSpace(matches[locationIndex])
 	return url.Parse(withoutTrailingSpaces)
 }
 
 var extractors = []linkExtractor{
 	redirectByMetaRefresh,
-	redirectByLnkdIn,
+	redirectByLinkedIn,
 }
