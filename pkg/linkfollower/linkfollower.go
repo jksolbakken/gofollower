@@ -10,6 +10,7 @@ import (
 )
 
 const maxRedirectDepth = 10
+const edgeOnMac = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36 Edg/144.0.0.0"
 
 var metaRefreshPattern = regexp.MustCompile(`(?i)<(meta)\s+(http-equiv).*(content)=["']0;[ ]*(url)=(?P<Location>.*?)(["']*>)`)
 var linkedInPattern = regexp.MustCompile(`<a.*name="external_url_click".*>\s+(?P<Location>https?://.*\s+)</a>`)
@@ -55,7 +56,19 @@ func prefixWithHttps(u *url.URL) *url.URL {
 }
 
 func visit(site *url.URL, httpClient *http.Client) (VisitResponse, error) {
-	resp, err := httpClient.Get(site.String())
+	defer httpClient.CloseIdleConnections()
+
+	req, err := http.NewRequest("GET", site.String(), nil)
+	if err != nil {
+		return VisitResponse{}, err
+	}
+	req.Header.Set("User-Agent", edgeOnMac)
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return VisitResponse{}, err
+	}
+	defer resp.Body.Close()
+
 	additional := ""
 	if err != nil {
 		return VisitResponse{}, err
@@ -65,7 +78,6 @@ func visit(site *url.URL, httpClient *http.Client) (VisitResponse, error) {
 		return VisitResponse{}, err
 	}
 	if redirectLocation == nil && resp.StatusCode == 200 {
-		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return VisitResponse{}, err
