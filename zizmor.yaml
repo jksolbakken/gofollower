@@ -1,0 +1,4 @@
+rules:
+  # GitHub environments are not currently used, so secrets are accessed outside of them.
+  secrets-outside-env:
+    disable: true
