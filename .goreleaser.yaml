@@ -64,6 +64,12 @@ homebrew_casks:
     directory: Casks
     binaries: 
       - follow
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/follow"]
+          end
 
 
 
