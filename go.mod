@@ -1,6 +1,6 @@
 module gofollower
 
-go 1.26.1
+go 1.26.3
 
 tool (
 	golang.org/x/vuln/cmd/govulncheck
