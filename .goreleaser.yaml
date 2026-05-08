@@ -61,7 +61,7 @@ homebrew_casks:
     name: gofollower
     homepage: "https://github.com/jksolbakken/gofollower"
     description: "Command-line utility for following HTTP links"
-    directory: Formula
+    directory: Casks
     binaries: 
       - follow
 
