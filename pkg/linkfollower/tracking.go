@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-var trackingParams = []string {
+var trackingParams = []string{
 	"utm_",
 	"mc_",
 	"oly_",
@@ -23,8 +23,8 @@ var trackingParams = []string {
 
 func StripTracking(u *url.URL) {
 	q := u.Query()
-	var trackingParams = []string{}
-	for paramName, _ := range q {
+	var trackingParams []string
+	for paramName := range q {
 		if isTracking(paramName) {
 			trackingParams = append(trackingParams, paramName)
 		}
