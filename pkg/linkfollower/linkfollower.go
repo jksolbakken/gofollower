@@ -35,6 +35,7 @@ func Follow(startURL *url.URL, responseHandler ResponseHandler) error {
 		},
 	}
 	for range maxRedirectDepth {
+		StripTracking(u)
 		response, err := visit(u, httpClient)
 		if err != nil {
 			return err
@@ -70,9 +71,6 @@ func visit(site *url.URL, httpClient *http.Client) (VisitResponse, error) {
 	defer resp.Body.Close()
 
 	additional := ""
-	if err != nil {
-		return VisitResponse{}, err
-	}
 	redirectLocation, err := redirectByStatusCode(resp)
 	if err != nil {
 		return VisitResponse{}, err
