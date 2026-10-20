@@ -94,7 +94,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v6.4.0
         with:
           distribution: goreleaser
-          version: vv2.19.0-68e5e341-nightly
+          version: v2.19.0-68e5e341-nightly
           args: release --config .goreleaser.yaml --clean --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
